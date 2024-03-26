@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -62,21 +63,22 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	//}
 	//return ctrl.Result{}, nil}
 
-	dev := &apiv1aplha1.Dev{}
+	dev := &apiv1alpha1.Dev{}
 
 	err := r.Get(ctx, req.NamespacedName, dev)
 	if err != nil {
-		if errors.IsNotFound(err){
+		if apierrors.IsNotFound(err) {
 			log.Info("dev resource is no found")
 			return ctrl.Result{}, nil
-		else {
-			log.Info("dev resource is up")
+			// else {
+			// 	log.Info("dev resource is up")
+			// }
 		}
 		log.Error(err, "Failed")
 		return ctrl.Result{}, err
 	}
-
-
+	return ctrl.Result{}, err
+}
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *DevReconciler) SetupWithManager(mgr ctrl.Manager) error {
