@@ -1,0 +1,14 @@
+apiVersion: api.gokula.dev/v1alpha1
+kind: Dev
+metadata:
+  labels:
+    app.kubernetes.io/name: dev
+    app.kubernetes.io/instance: dev-sample
+    app.kubernetes.io/part-of: dev
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: dev
+  name: dev-sample
+spec:
+  deployments:
+    - name: test
+      namespace: default

@@ -1,0 +1,27 @@
+# permissions for end users to view devs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: dev-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dev
+    app.kubernetes.io/part-of: dev
+    app.kubernetes.io/managed-by: kustomize
+  name: dev-viewer-role
+rules:
+- apiGroups:
+  - api.gokula.dev
+  resources:
+  - devs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - api.gokula.dev
+  resources:
+  - devs/status
+  verbs:
+  - get
