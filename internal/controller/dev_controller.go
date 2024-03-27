@@ -73,12 +73,15 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	//err := r.Get(ctx, req.NamespacedName, dev)
 
 	kubeconfig := flag.String("kubeconfig", "/root/.kube/config", "location to my kind kubeconfig file")
+
+	fmt.Println(kubeconfig)
+
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		fmt.Printf("error %s building config from flag\n", err.Error())
 		config, err = rest.InClusterConfig()
 		if err != nil {
-			fmt.Printf("error %s, getting kind cluster config", err.Error())
+			panic(err.Error())
 		}
 	}
 
