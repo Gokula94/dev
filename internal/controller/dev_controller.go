@@ -25,11 +25,6 @@ import (
 	apiv1alpha1 "dev/api/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -80,41 +75,43 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	}
 
 	flag.Parse()
+	fmt.Println(kubeconfig)
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	/*
+		// use the current context in kubeconfig
+		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
-	if err != nil {
-		_ = fmt.Errorf("failed to config %s", err.Error())
-		config, err = rest.InClusterConfig()
 		if err != nil {
-			panic(err.Error())
+			_ = fmt.Errorf("failed to config %s", err.Error())
+			config, err = rest.InClusterConfig()
+			if err != nil {
+				panic(err.Error())
+			}
 		}
-	}
-	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	stopper := make(chan struct{})
-	defer close(stopper)
+		// create the clientset
+		clientset, err := kubernetes.NewForConfig(config)
+		stopper := make(chan struct{})
+		defer close(stopper)
 
-	factory := informers.NewSharedInformerFactory(clientset, 0)
+		factory := informers.NewSharedInformerFactory(clientset, 0)
 
-	informer := factory.Core().V1().Pods().Informer()
+		informer := factory.Core().V1().Pods().Informer()
 
-	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			fmt.Println("add event")
-		},
-		UpdateFunc: func(obj1, obj2 interface{}) {
-			fmt.Println("update event")
-		},
-		DeleteFunc: func(obj interface{}) {
-			fmt.Println("delete event")
-		},
-	})
+		informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				fmt.Println("add event")
+			},
+			UpdateFunc: func(obj1, obj2 interface{}) {
+				fmt.Println("update event")
+			},
+			DeleteFunc: func(obj interface{}) {
+				fmt.Println("delete event")
+			},
+		})
 
-	go informer.Run(stopper)
-	<-stopper
-
+		go informer.Run(stopper)
+		<-stopper
+	*/
 	return ctrl.Result{}, err
 }
 
