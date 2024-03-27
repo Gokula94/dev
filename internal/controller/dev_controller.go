@@ -18,7 +18,9 @@ package controller
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"time"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
@@ -28,6 +30,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -69,17 +72,26 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	//err := r.Get(ctx, req.NamespacedName, dev)
 
-	config, err := rest.InClusterConfig()
+	kubeconfig := flag.String("kubeconfig", "/root/.kube/config", "location to my kind kubeconfig file")
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		fmt.Printf("error %s building config from flag\n", err.Error())
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			fmt.Printf("error %s, getting kind cluster config", err.Error())
+		}
+	}
+
 	if err != nil {
 		panic(err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err)
+		fmt.Printf("error %s, creating clientset\n", err.Error())
 	}
 
-	factory := informers.NewSharedInformerFactory(clientset, 0)
+	factory := informers.NewSharedInformerFactory(clientset, 30*time.Second)
 	informer := factory.Core().V1().Pods().Informer()
 
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
