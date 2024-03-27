@@ -20,6 +20,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"path/filepath"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
@@ -29,6 +30,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -70,7 +72,12 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	//err := r.Get(ctx, req.NamespacedName, dev)
 
-	kubeconfig := flag.String("kubeconfig", "/root/.kube/config", "location to my kind kubeconfig file")
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
 
 	flag.Parse()
 
