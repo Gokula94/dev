@@ -20,16 +20,17 @@ import (
 	"context"
 	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	apiv1alpha1 "dev/api/v1alpha1"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	apiv1alpha1 "dev/api/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
-var logger = log.Log.WithName("controller_dev")
+//var logger = log.Log.WithName("controller_dev")
 
 // DevReconciler reconciles a Dev object
 type DevReconciler struct {
@@ -51,32 +52,18 @@ type DevReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
 func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := logger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
+	//log := logger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
+	logger := log.FromContext(ctx)
 
-	log.Info("Reconcile called by gokul")
+	logger.Info("Reconcile called by gokul")
 
 	fmt.Println("Reconcile is called for testing")
-	//if req.Namespace == "default" {
-	//	log.Info("Pod created\n")
-	//} else {
-	//	log.Info("Pod deleted\n")
-	//}
-	//return ctrl.Result{}, nil}
+	logger.Info(fmt.Sprintf("Pod created is %v", req.NamespacedName))
 
 	dev := &apiv1alpha1.Dev{}
 
 	err := r.Get(ctx, req.NamespacedName, dev)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info("dev resource is no found")
-			return ctrl.Result{}, nil
-			// else {
-			// 	log.Info("dev resource is up")
-			// }
-		}
-		log.Error(err, "Failed")
-		return ctrl.Result{}, err
-	}
+
 	return ctrl.Result{}, err
 }
 
@@ -84,5 +71,10 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 func (r *DevReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&apiv1alpha1.Dev{}).
+		WithEventFilter(predicate.Funcs{
+			DeleteFunc:  func(deleteEvent event.DeleteEvent) bool { return false },
+			UpdateFunc:  func(updateEvent event.UpdateEvent) bool { return false },
+			GenericFunc: func(genericEvent event.GenericEvent) bool { return false },
+		}).
 		Complete(r)
 }
