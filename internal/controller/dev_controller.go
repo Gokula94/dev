@@ -23,6 +23,11 @@ import (
 	apiv1alpha1 "dev/api/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -63,6 +68,34 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	dev := &apiv1alpha1.Dev{}
 
 	err := r.Get(ctx, req.NamespacedName, dev)
+
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	factory := informers.NewSharedInformerFactory(clientset, 0)
+	informer := factory.Core().V1().Pods().Informer()
+
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			fmt.Println("add event")
+		},
+		UpdateFunc: func(obj1, obj2 interface{}) {
+			fmt.Println("update event")
+		},
+		DeleteFunc: func(obj interface{}) {
+			fmt.Println("delete event")
+		},
+	})
+
+	factory.Start(wait.NeverStop)
+	factory.WaitForCacheSync(wait.NeverStop)
 
 	return ctrl.Result{}, err
 }
