@@ -82,10 +82,6 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		}
 	}
 
-	if err != nil {
-		panic(err)
-	}
-
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		fmt.Printf("error %s, creating clientset\n", err.Error())
