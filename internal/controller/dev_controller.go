@@ -20,15 +20,15 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"path/filepath"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/util/homedir"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
 //var logger = log.Log.WithName("controller_dev")
@@ -65,7 +65,16 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	err := r.Get(ctx, req.NamespacedName, dev)
 
-	kubeconfig := flag.String("kubeconfig", "/root/.kube/config", "location to my kind kubeconfig file")
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
+
+	// use the current context in kubeconfig
+	//config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
 	fmt.Println(kubeconfig)
 
@@ -111,8 +120,5 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 func (r *DevReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&apiv1alpha1.Dev{}).
-		WithEventFilter(predicate.Funcs{
-			DeleteFunc: func(deleteEvent event.DeleteEvent) bool { return false },
-		}).
 		Complete(r)
 }
