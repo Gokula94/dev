@@ -39,10 +39,6 @@ type DevReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-type controller struct {
-	client kubernetes.Interface
-}
-
 //+kubebuilder:rbac:groups=api.gokula.dev,resources=devs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=api.gokula.dev,resources=devs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=api.gokula.dev,resources=devs/finalizers,verbs=update
