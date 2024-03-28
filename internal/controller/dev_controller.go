@@ -22,9 +22,10 @@ import (
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -73,13 +74,13 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		panic(err)
 	}
 	clientset := kubernetes.NewForConfigOrDie(config)
-	nodeList, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-	for _, n := range nodeList.Items {
-		fmt.Println(n.Name)
-	}
+	// nodeList, err := clientset.CoreV1().Pods().List(context.Background(), metav1.ListOptions{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, n := range nodeList.Items {
+	// 	fmt.Println(n.Name)
+	// }
 
 	// var kubeconfig *string
 	// if home := homedir.HomeDir(); home != "" {
@@ -102,33 +103,28 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	// // create the clientset
 	// clientset, err := kubernetes.NewForConfig(config)
 
-	// stopper := make(chan struct{})
-	// defer close(stopper)
-	// var ctr controller
-	// //config, err := clientcmd.BuildConfigFromFlags("", ctr)
+	stopper := make(chan struct{})
+	defer close(stopper)
+	//config, err := clientcmd.BuildConfigFromFlags("", ctr)
 
-	// kc.err := utils.GetClient(config)
-	// if err != nil {
+	factory := informers.NewSharedInformerFactory(clientset, 0)
 
-	// }
-	// factory := informers.NewSharedInformerFactory(ctr.client, 0)
+	informer := factory.Core().V1().Pods().Informer()
 
-	// informer := factory.Core().V1().Pods().Informer()
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			fmt.Println("add event")
+		},
+		UpdateFunc: func(obj1, obj2 interface{}) {
+			fmt.Println("update event")
+		},
+		DeleteFunc: func(obj interface{}) {
+			fmt.Println("delete event")
+		},
+	})
 
-	// informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-	// 	AddFunc: func(obj interface{}) {
-	// 		fmt.Println("add event")
-	// 	},
-	// 	UpdateFunc: func(obj1, obj2 interface{}) {
-	// 		fmt.Println("update event")
-	// 	},
-	// 	DeleteFunc: func(obj interface{}) {
-	// 		fmt.Println("delete event")
-	// 	},
-	// })
-
-	// go informer.Run(stopper)
-	// <-stopper
+	go informer.Run(stopper)
+	<-stopper
 
 	return ctrl.Result{}, err
 }
