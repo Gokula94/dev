@@ -63,9 +63,9 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	fmt.Println("Reconcile is called for testing")
 	logger.Info(fmt.Sprintf("Pod created is %v", req.NamespacedName))
 
-	//dev := &apiv1alpha1.Dev{}
+	dev := &apiv1alpha1.Dev{}
 
-	//err := r.Get(ctx, req.NamespacedName, dev)
+	err := r.Get(ctx, req.NamespacedName, dev)
 
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
