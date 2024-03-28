@@ -18,19 +18,13 @@ package controller
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"path/filepath"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -66,34 +60,34 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	fmt.Println("Reconcile is called for testing")
 	logger.Info(fmt.Sprintf("Pod created is %v", req.NamespacedName))
 
-	//dev := &apiv1alpha1.Dev{}
+	dev := &apiv1alpha1.Dev{}
 
-	//err := r.Get(ctx, req.NamespacedName, dev)
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
+	err := r.Get(ctx, req.NamespacedName, dev)
+	// var kubeconfig *string
+	// if home := homedir.HomeDir(); home != "" {
+	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	// } else {
+	// 	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	// }
+	// flag.Parse()
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	// // use the current context in kubeconfig
+	// config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
-	if err != nil {
-		_ = fmt.Errorf("failed to config %s", err.Error())
-		config, err = rest.InClusterConfig()
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	// if err != nil {
+	// 	_ = fmt.Errorf("failed to config %s", err.Error())
+	// 	config, err = rest.InClusterConfig()
+	// 	if err != nil {
+	// 		panic(err.Error())
+	// 	}
+	// }
+	// // create the clientset
+	// clientset, err := kubernetes.NewForConfig(config)
 
 	stopper := make(chan struct{})
 	defer close(stopper)
 
-	factory := informers.NewSharedInformerFactory(clientset, 0)
+	factory := informers.NewSharedInformerFactory(nil, 0)
 
 	informer := factory.Core().V1().Pods().Informer()
 
