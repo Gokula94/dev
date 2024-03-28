@@ -67,7 +67,6 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	kubeconfig := flag.String("kubeconfig", "/root/.kube/config", "location to my kind kubeconfig file")
 
-	flag.Parse()
 	fmt.Println(kubeconfig)
 
 	/*
