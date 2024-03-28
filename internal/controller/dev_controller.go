@@ -25,8 +25,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -66,17 +66,12 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	//err := r.Get(ctx, req.NamespacedName, dev)
 
-	config, err := rest.InClusterConfig()
+	content := `a kubeconfig string`
+	config, err := clientcmd.RESTConfigFromKubeConfig([]byte(content))
 	if err != nil {
 		panic(err.Error())
 	}
-	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// create the clientset
 	stopper := make(chan struct{})
 	defer close(stopper)
 
