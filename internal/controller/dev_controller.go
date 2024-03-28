@@ -24,6 +24,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,6 +37,10 @@ import (
 type DevReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+}
+
+type controller struct {
+	client kubernetes.Interface
 }
 
 //+kubebuilder:rbac:groups=api.gokula.dev,resources=devs,verbs=get;list;watch;create;update;patch;delete
@@ -86,8 +91,10 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	stopper := make(chan struct{})
 	defer close(stopper)
+	var ctr controller
+	//config, err := clientcmd.BuildConfigFromFlags("", ctr)
 
-	factory := informers.NewSharedInformerFactory(nil, 0)
+	factory := informers.NewSharedInformerFactory(ctr.client, 0)
 
 	informer := factory.Core().V1().Pods().Informer()
 
