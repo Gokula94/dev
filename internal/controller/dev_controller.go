@@ -19,7 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -90,6 +90,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		AddFunc: func(obj interface{}) {
 			fmt.Println("add event")
 			const myurl = "https://api.restful-api.dev/objects"
+			fmt.Println(myurl)
 			requestBody := strings.NewReader(`
 			 {
 				"Nmae": "3801-XGS-PON",
@@ -97,12 +98,13 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 				"type": "10G Passive  Optical Network (PON) transceivers"
 			 }
 			 `)
+			fmt.Println(requestBody)
 			response, err := http.Post(myurl, "application/json", requestBody)
 			if err != nil {
 				panic(err)
 			}
 			defer response.Body.Close()
-			content, _ := ioutil.ReadAll(response.Body)
+			content, _ := io.ReadAll(response.Body)
 
 			fmt.Println(string(content))
 
