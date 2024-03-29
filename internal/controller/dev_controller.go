@@ -19,6 +19,9 @@ package controller
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
@@ -74,34 +77,6 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		panic(err)
 	}
 	clientset := kubernetes.NewForConfigOrDie(config)
-	// nodeList, err := clientset.CoreV1().Pods().List(context.Background(), metav1.ListOptions{})
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// for _, n := range nodeList.Items {
-	// 	fmt.Println(n.Name)
-	// }
-
-	// var kubeconfig *string
-	// if home := homedir.HomeDir(); home != "" {
-	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	// } else {
-	// 	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	// }
-	// flag.Parse()
-
-	// // use the current context in kubeconfig
-	// config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-
-	// if err != nil {
-	// 	_ = fmt.Errorf("failed to config %s", err.Error())
-	// 	config, err = rest.InClusterConfig()
-	// 	if err != nil {
-	// 		panic(err.Error())
-	// 	}
-	// }
-	// // create the clientset
-	// clientset, err := kubernetes.NewForConfig(config)
 
 	stopper := make(chan struct{})
 	defer close(stopper)
@@ -114,6 +89,23 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			fmt.Println("add event")
+			const myurl = "https://api.restful-api.dev/objects"
+			requestBody := strings.NewReader(`
+			 {
+				"Nmae": "3801-XGS-PON",
+				"Rx_Operating_Wavelength": 1280,
+				"type": "10G Passive  Optical Network (PON) transceivers"
+			 }
+			 `)
+			response, err := http.Post(myurl, "application/json", requestBody)
+			if err != nil {
+				panic(err)
+			}
+			defer response.Body.Close()
+			content, _ := ioutil.ReadAll(response.Body)
+
+			fmt.Println(string(content))
+
 		},
 		UpdateFunc: func(obj1, obj2 interface{}) {
 			fmt.Println("update event")
