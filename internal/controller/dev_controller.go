@@ -111,9 +111,30 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		},
 		UpdateFunc: func(obj1, obj2 interface{}) {
 			fmt.Println("update event")
+			fmt.Println("hello don't update the resource for delete operation")
+			fmt.Println("add event")
+			const myurl = "https://api.restful-api.dev/objects"
+			fmt.Println(myurl)
+			requestBody := strings.NewReader(`
+			 {
+				"Nmae": "3801-XGS-PON",
+				"Rx_Operating_Wavelength": 1280,
+				"type": "10G Passive  Optical Network (PON) transceivers"
+			 }
+			 `)
+			fmt.Println(requestBody)
+			response, err := http.Post(myurl, "application/json", requestBody)
+			if err != nil {
+				panic(err)
+			}
+			defer response.Body.Close()
+			content, _ := io.ReadAll(response.Body)
+
+			fmt.Println(string(content))
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Println("delete event")
+			fmt.Println("pods are deleted")
 		},
 	})
 
