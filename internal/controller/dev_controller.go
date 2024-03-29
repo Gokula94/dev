@@ -90,7 +90,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			fmt.Println("add event")
+			fmt.Println(obj)
 			const myurl = "https://api.restful-api.dev/objects"
 			fmt.Println(myurl)
 			requestBody := strings.NewReader(`
@@ -117,10 +117,10 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 		},
 		UpdateFunc: func(obj1, obj2 interface{}) {
-			fmt.Println("update event is called")
+			fmt.Println(obj2)
 		},
 		DeleteFunc: func(obj interface{}) {
-			fmt.Println("delete event")
+			fmt.Println(obj)
 			fmt.Println("pods are deleted")
 		},
 	})
