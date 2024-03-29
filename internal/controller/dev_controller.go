@@ -22,6 +22,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
@@ -112,6 +113,8 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		UpdateFunc: func(obj1, obj2 interface{}) {
 			fmt.Println("update event")
 			fmt.Println("hello don't update the resource for delete operation")
+			duration := 10 * time.Second
+			time.Sleep(duration)
 			fmt.Println("add event")
 			const myurl = "https://api.restful-api.dev/objects"
 			fmt.Println(myurl)
