@@ -95,18 +95,22 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			const myurl = "https://api.restful-api.dev/objects"
 			fmt.Println(myurl)
 			requestBody := strings.NewReader(`
-			 {
-				"Nmae": "3801-XGS-PON",
-				"Rx_Operating_Wavelength": 1280,
-				"type": "10G Passive  Optical Network (PON) transceivers"
-			 }
+			 
+				{
+					"name": "3801-XGS-PON",
+					"data": {
+						"Rx_Operating_Wavelength": 1280,
+						"type": "10G Passive  Optical Network (PON) transceivers"
+					}
+				 }
+
 			 `)
 			fmt.Println(requestBody)
 			response, err := http.Post(myurl, "application/json", requestBody)
-			fmt.Println("post call is suceesful")
 			if err != nil {
 				panic(err)
 			}
+			fmt.Println("post call is suceesful")
 			defer response.Body.Close()
 			content, _ := io.ReadAll(response.Body)
 
