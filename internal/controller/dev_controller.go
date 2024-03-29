@@ -22,7 +22,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"time"
 
 	apiv1alpha1 "dev/api/v1alpha1"
 
@@ -118,29 +117,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 		},
 		UpdateFunc: func(obj1, obj2 interface{}) {
-			fmt.Println("update event")
-			fmt.Println("hello don't update the resource for delete operation")
-			duration := 10 * time.Second
-			time.Sleep(duration)
-			fmt.Println("add event")
-			const myurl = "https://api.restful-api.dev/objects"
-			fmt.Println(myurl)
-			requestBody := strings.NewReader(`
-			 {
-				"Nmae": "3801-XGS-PON",
-				"Rx_Operating_Wavelength": 1280,
-				"type": "10G Passive  Optical Network (PON) transceivers"
-			 }
-			 `)
-			fmt.Println(requestBody)
-			response, err := http.Post(myurl, "application/json", requestBody)
-			if err != nil {
-				panic(err)
-			}
-			defer response.Body.Close()
-			content, _ := io.ReadAll(response.Body)
-
-			fmt.Println(string(content))
+			fmt.Println("update event is called")
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Println("delete event")
