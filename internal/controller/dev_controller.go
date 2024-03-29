@@ -83,6 +83,8 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	defer close(stopper)
 	//config, err := clientcmd.BuildConfigFromFlags("", ctr)
 
+	//resource := schema.GroupVersionResource{Group: "api.gokula.dev", Version: "v1alpha1", Resource: "dev"}
+
 	factory := informers.NewSharedInformerFactory(clientset, 0)
 
 	informer := factory.Core().V1().Pods().Informer()
@@ -101,6 +103,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			 `)
 			fmt.Println(requestBody)
 			response, err := http.Post(myurl, "application/json", requestBody)
+			fmt.Println("post call is suceesful")
 			if err != nil {
 				panic(err)
 			}
