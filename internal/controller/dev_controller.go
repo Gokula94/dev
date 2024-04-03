@@ -118,6 +118,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		},
 		UpdateFunc: func(obj1, obj2 interface{}) {
 			fmt.Println(obj2)
+			println("update call been called")
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Println(obj)
