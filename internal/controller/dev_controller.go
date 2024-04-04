@@ -57,8 +57,9 @@ type DevReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
 func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	//log := logger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
+
 	logger := log.FromContext(ctx)
+	//log := logger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 
 	logger.Info("Reconcile called by gokul")
 
@@ -85,8 +86,10 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	//resource := schema.GroupVersionResource{Group: "api.gokula.dev", Version: "v1alpha1", Resource: "dev"}
 
 	factory := informers.NewSharedInformerFactory(clientset, 0)
+	//factory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(clientset,0,"",nil)
 
 	informer := factory.Core().V1().Pods().Informer()
+	//informer := factory.ForResource(resource).Informer()
 
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -109,7 +112,7 @@ func (r *DevReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println("post call is suceesful")
+			fmt.Println("post call is sucessful")
 			defer response.Body.Close()
 			content, _ := io.ReadAll(response.Body)
 
